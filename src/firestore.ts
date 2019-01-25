@@ -282,6 +282,40 @@ export class FirestoreHelper {
         })
     }
 
+
+    /**
+     * Add sub collection to data object if possible
+     *
+     * @param {any} db
+     * @param {any} key
+     * @param {any} subKey
+     * @param {any} subData
+     * @param {any} collectionName
+     * @param {any} subCollection
+     * @returns
+     */
+    addSubCollectionWithID(db: any, key: string, subKey: string, subData: Object, collectionName: string, subCollection: string): Promise<any> {
+
+        return  new Promise((resolve, reject)=>db.collection(collectionName).doc(key).collection(subCollection).doc(subKey).get()
+        .then(snapshot => {
+            let max = snapshot.size;
+            let count = 0;
+            
+            snapshot.forEach(subDoc => {
+                subData[subDoc.id] = subDoc.data();
+                count++
+
+                if(count === max) resolve(true)
+            })
+
+        }).catch(error => {
+            reject(error)
+            console.log(error);
+        })
+        );
+    
+    }
+
     /**
      *Restore data to Firestore
      *
